@@ -13,10 +13,28 @@ class StyleKeyboardService : InputMethodService() {
     private val gaps = ArrayList<Long>()
     private var lastKey = 0L
     private var recording = true
-    private var arabic = false
 
+    // 0 = latin, 1 = arabic, 2 = arabic alt
+    private var layer = 0
+    private var shift = false
+
+    private fun pairs(s: String, upper: Boolean = false) = s.map {
+        val c = if (upper) it.uppercaseChar().toString() else it.toString()
+        c to c
+    }
+
+    private fun same(items: List<String>) = items.map { it to it }
+
+    private val digits = "1234567890"
     private val latin = listOf("qwertyuiop", "asdfghjkl", "zxcvbnm")
-    private val arabicRows = listOf("ضصثقفغعهخحجد", "شسيبلاتنمكط", "ئءؤرلاىةوزظ")
+    private val arabicMain = listOf("ضصثقفغعهخحج", "شسيبلاتنمكط", "ئءؤرىةوزظدذ")
+
+    private val altRow1 = same(listOf("أ", "إ", "آ", "لا", "لأ", "لإ", "ـ"))
+    private val altRow2 = listOf(
+        "ـَ" to "\u064E", "ـُ" to "\u064F", "ـِ" to "\u0650", "ـّ" to "\u0651",
+        "ـْ" to "\u0652", "ـً" to "\u064B", "ـٌ" to "\u064C", "ـٍ" to "\u064D"
+    )
+    private val altRow3 = same(listOf("،", "؟", "؛", "!", ":", "-", "(", ")", "/"))
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
@@ -67,10 +85,13 @@ class StyleKeyboardService : InputMethodService() {
         currentInputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEND)
     }
 
+    private fun rebuild() = setInputView(onCreateInputView())
+
     override fun onCreateInputView(): View {
         val root = LinearLayout(this)
         root.orientation = LinearLayout.VERTICAL
         root.setPadding(4, 4, 4, 4)
+
         fun row(): LinearLayout {
             val r = LinearLayout(this)
             r.orientation = LinearLayout.HORIZONTAL
@@ -86,22 +107,45 @@ class StyleKeyboardService : InputMethodService() {
             b.setOnClickListener { action() }
             parent.addView(b, LinearLayout.LayoutParams(0, -1, weight))
         }
-        val rows = if (arabic) arabicRows else latin
-        rows.forEach { chars ->
+        fun letters(items: List<Pair<String, String>>) {
             val r = row()
-            chars.forEach { c -> key(r, c.toString()) { typed(c.toString()) } }
+            items.forEach { (label, value) ->
+                key(r, label) {
+                    typed(value)
+                    if (layer == 0 && shift) { shift = false; rebuild() }
+                }
+            }
         }
+
+        letters(pairs(digits))
+        when (layer) {
+            0 -> latin.forEach { letters(pairs(it, shift)) }
+            1 -> arabicMain.forEach { letters(pairs(it)) }
+            else -> {
+                letters(altRow1)
+                letters(altRow2)
+                letters(altRow3)
+            }
+        }
+
         val last = row()
-        key(last, if (arabic) "EN" else "AR", 1.5f) {
-            arabic = !arabic
-            setInputView(onCreateInputView())
+        key(last, if (layer == 0) "AR" else "EN", 1.5f) {
+            layer = if (layer == 0) 1 else 0
+            shift = false
+            rebuild()
         }
-        key(last, ",") { typed(",") }
-        key(last, "space", 4f) { typed(" ") }
+        when (layer) {
+            0 -> key(last, "Aa", 1.2f) { shift = !shift; rebuild() }
+            1 -> key(last, "alt", 1.2f) { layer = 2; rebuild() }
+            else -> key(last, "main", 1.2f) { layer = 1; rebuild() }
+        }
+        key(last, if (layer == 0) "," else "،") { typed(if (layer == 0) "," else "،") }
+        key(last, "space", 3.5f) { typed(" ") }
         key(last, ".") { typed(".") }
-        key(last, "del", 1.5f) { backspace() }
+        key(last, "del", 1.3f) { backspace() }
         key(last, "send", 1.5f) { send() }
-        root.minimumHeight = (resources.displayMetrics.density * 260).toInt()
+
+        root.minimumHeight = (resources.displayMetrics.density * 290).toInt()
         return root
     }
 }
