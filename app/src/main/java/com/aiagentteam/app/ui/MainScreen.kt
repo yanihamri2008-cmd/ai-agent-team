@@ -53,7 +53,8 @@ private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) 
 fun MainScreen() {
     val ctx = LocalContext.current.applicationContext
     val orch = remember { Orchestrator(ctx) }
-    val apps = remember { InstalledApps.list(ctx) }
+    val logItems = orch.log
+    val apps by produceState(emptyList<AppItem>()) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { InstalledApps.list(ctx) } }
     val scope = rememberCoroutineScope()
     var app by remember { mutableStateOf("") }
     var pkg by remember { mutableStateOf("") }
@@ -128,7 +129,7 @@ fun MainScreen() {
                         if (orch.log.isEmpty()) {
                             Text("لا توجد عمليات بعد", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        orch.log.toList().forEach { e ->
+                        logItems.forEach { e ->
                             Column {
                                 Text(e.role.title, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary)
