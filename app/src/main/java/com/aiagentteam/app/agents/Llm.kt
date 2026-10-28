@@ -1,6 +1,7 @@
 package com.aiagentteam.app.agents
 
 import android.content.Context
+import com.google.ai.edge.litertlm.Backend
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ object Llm {
             val e = engine ?: Engine(
                 EngineConfig(
                     modelPath = modelFile(ctx).absolutePath,
+                    backend = Backend.CPU(),
                     cacheDir = ctx.cacheDir.path
                 )
             ).also { it.initialize(); engine = it }
