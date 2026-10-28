@@ -21,5 +21,13 @@ object SampleStore {
         return if (f.exists()) f.readLines().size else 0
     }
 
+    fun recent(ctx: Context, n: Int): List<String> {
+        val f = file(ctx)
+        if (!f.exists()) return emptyList()
+        return f.readLines().takeLast(n).mapNotNull {
+            runCatching { JSONObject(it).optString("text") }.getOrNull()?.takeIf { s -> s.isNotBlank() }
+        }
+    }
+
     fun clear(ctx: Context) { file(ctx).delete() }
 }

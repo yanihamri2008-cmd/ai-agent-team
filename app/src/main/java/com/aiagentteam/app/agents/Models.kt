@@ -30,5 +30,6 @@ data class TaskInput(
     val person: String,
     val personInfo: String,
     val instruction: String,
-    val mode: RunMode
+    val mode: RunMode,
+    val pkg: String = ""
 )

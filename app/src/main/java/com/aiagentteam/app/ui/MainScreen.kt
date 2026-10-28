@@ -101,7 +101,7 @@ fun MainScreen() {
                             onClick = {
                                 scope.launch {
                                     orch.run(TaskInput(app, person, info, instruction,
-                                        if (auto) RunMode.AUTO else RunMode.REVIEW))
+                                        if (auto) RunMode.AUTO else RunMode.REVIEW, pkg))
                                     samples = SampleStore.count(ctx)
                                 }
                             },
@@ -111,6 +111,7 @@ fun MainScreen() {
                         ) { Text("تشغيل الفريق", fontWeight = FontWeight.SemiBold) }
                     }
                 }
+                item { BrainPanel(orch) }
                 item {
                     Section("الوكلاء") {
                         AgentRole.values().forEach { role ->
