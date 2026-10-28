@@ -52,7 +52,7 @@ fun BrainPanel(orch: Orchestrator) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("النموذج والمسودة", fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary)
-            Text(if (has) "النموذج: جاهز" else "النموذج: غير موجود")
+            Text(if (has) "النموذج: جاهز (${Llm.modelFile(ctx).length()} بايت)" else "النموذج: غير موجود")
             OutlinedButton(
                 onClick = { picker.launch(arrayOf("*/*")) },
                 enabled = !busy,

@@ -36,7 +36,7 @@ class Orchestrator(private val ctx: Context) {
             statuses[role] = AgentStatus.COMPLETED
             return r
         } catch (e: Exception) {
-            say(role, "خطأ: ${e.message}")
+            say(role, "خطأ (${e.javaClass.simpleName}): ${e.message}")
             statuses[role] = AgentStatus.FAILED
             throw e
         }
