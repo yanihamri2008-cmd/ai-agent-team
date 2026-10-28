@@ -20,8 +20,11 @@ import kotlinx.coroutines.launch
 fun MainScreen() {
     val ctx = LocalContext.current.applicationContext
     val orch = remember { Orchestrator(ctx) }
+    val apps = remember { InstalledApps.list(ctx) }
     val scope = rememberCoroutineScope()
-    var app by remember { mutableStateOf("Instagram") }
+    var app by remember { mutableStateOf("") }
+    var pkg by remember { mutableStateOf("") }
+    var showPicker by remember { mutableStateOf(false) }
     var person by remember { mutableStateOf("") }
     var info by remember { mutableStateOf("") }
     var instruction by remember { mutableStateOf("") }
@@ -29,13 +32,19 @@ fun MainScreen() {
     var samples by remember { mutableStateOf(SampleStore.count(ctx)) }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        if (showPicker) {
+            AppPickerDialog(apps, onPick = { app = it.label; pkg = it.pkg; showPicker = false },
+                onDismiss = { showPicker = false })
+        }
         Scaffold(topBar = { TopAppBar(title = { Text("فريق الذكاء الاصطناعي") }) }) { pad ->
             LazyColumn(
                 Modifier.padding(pad).padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 item {
-                    OutlinedTextField(app, { app = it }, label = { Text("التطبيق المستهدف") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedButton(onClick = { showPicker = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (pkg.isEmpty()) "اختيار التطبيق" else "التطبيق: $app")
+                    }
                 }
                 item {
                     OutlinedTextField(person, { person = it }, label = { Text("اسم الشخص") }, modifier = Modifier.fillMaxWidth())
@@ -61,7 +70,7 @@ fun MainScreen() {
                                 samples = SampleStore.count(ctx)
                             }
                         },
-                        enabled = !orch.running.value && instruction.isNotBlank(),
+                        enabled = !orch.running.value && instruction.isNotBlank() && pkg.isNotBlank(),
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("تشغيل الفريق") }
                 }
@@ -80,9 +89,7 @@ fun MainScreen() {
                     }
                 }
                 item { Text("سجل العمليات", style = MaterialTheme.typography.titleMedium) }
-                items(orch.log.toList()) { e ->
-                    Text("${e.role.title}: ${e.message}")
-                }
+                items(orch.log.toList()) { e -> Text("${e.role.title}: ${e.message}") }
                 item { Spacer(Modifier.height(24.dp)) }
             }
         }
