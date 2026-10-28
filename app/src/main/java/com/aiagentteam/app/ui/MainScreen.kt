@@ -81,6 +81,7 @@ fun MainScreen() {
                         OutlinedButton(onClick = { SampleStore.clear(ctx); samples = 0 }) { Text("مسح العينات") }
                     }
                 }
+                item { AccessTestPanel(pkg) }
                 item { Text("الوكلاء", style = MaterialTheme.typography.titleMedium) }
                 items(AgentRole.values().toList()) { role ->
                     Row(Modifier.fillMaxWidth()) {
