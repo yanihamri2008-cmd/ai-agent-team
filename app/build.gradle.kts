@@ -13,8 +13,8 @@ android {
         applicationId = "com.aiagentteam.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 13
-        versionName = "1.3"
+        versionCode = 14
+        versionName = "1.4"
     }
 
     buildTypes {
@@ -42,6 +42,6 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
-    implementation("com.google.ai.edge.litertlm:litertlm-android:0.18.0")
+    implementation("com.google.ai.edge.litertlm:litertlm-android:latest.release")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 }
