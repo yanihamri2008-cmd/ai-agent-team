@@ -1,20 +1,20 @@
 package com.aiagentteam.app.agents
 
 enum class AgentRole(val title: String) {
-    ANALYST("Analyst"),
-    PERSON("Person Analyst"),
-    STYLE("Style Analyst"),
-    PLANNER("Planner"),
-    EXECUTOR("Executor"),
-    REVIEWER("Reviewer"),
-    CORRECTOR("Corrector")
+    ANALYST("المحلل"),
+    PERSON("محلل الشخص"),
+    STYLE("محلل الأسلوب"),
+    PLANNER("المخطط"),
+    EXECUTOR("المنفذ"),
+    REVIEWER("المراجع"),
+    CORRECTOR("المصحح")
 }
 
 enum class AgentStatus(val label: String) {
-    WAITING("Waiting"),
-    WORKING("Working"),
-    COMPLETED("Completed"),
-    FAILED("Failed")
+    WAITING("ينتظر"),
+    WORKING("يعمل"),
+    COMPLETED("مكتمل"),
+    FAILED("فشل")
 }
 
 data class LogEntry(
